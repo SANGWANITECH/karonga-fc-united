@@ -1,0 +1,1 @@
+export default function StadiumPage() { return <main className='min-h-screen flex items-center justify-center'><h1 className='font-heading text-5xl text-white uppercase'>Stadium <span className='text-club-yellow'>KUFC</span></h1></main> }
