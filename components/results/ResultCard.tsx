@@ -110,7 +110,7 @@ export default function ResultCard({ result }: { result: Result }) {
         </div>
 
         {/* Scorers */}
-        {result.scorers.length > 0 && (
+        {result.scorers && result.scorers.length > 0 && (
           <div
             className="pt-4 flex flex-wrap items-center gap-x-4 gap-y-1 justify-center"
             style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}

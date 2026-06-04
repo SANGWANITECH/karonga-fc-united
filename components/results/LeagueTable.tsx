@@ -79,7 +79,7 @@ export default function LeagueTable() {
               {/* Form */}
               <td className="py-4 px-3">
                 <div className="flex items-center gap-1 justify-center">
-                  {row.form.map((f, i) => (
+                {row.form?.map((f, i) => (
                     <span
                       key={i}
                       className="w-5 h-5 flex items-center justify-center font-bold"

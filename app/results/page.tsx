@@ -93,7 +93,7 @@ export default function ResultsPage() {
           </div>
 
           {/* Scorers */}
-          {latest.scorers.length > 0 && (
+          {latest.scorers && latest.scorers.length > 0 && (
             <div className="mt-8 flex flex-wrap gap-x-5 gap-y-1">
               {latest.scorers.map((s, i) => (
                 <span key={i} className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
