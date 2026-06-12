@@ -1,16 +1,17 @@
 export const contactInfo = {
-    address: ['Karonga Town Council Office Complex', 'Karonga, Malawi'],
-    emails: ['info@karongaunited.mw', 'media@karongaunited.mw'],
-    phones: ['+265 (0) 1 362 445'],
-    hours: 'Mon–Fri, 9am – 5pm',
-    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Karonga+Stadium+Malawi',
-  }
-  
-  export const faqs = [
-    { q: 'Ticketing?', a: 'Tickets are available at the stadium gates and selected retail outlets in Karonga Town. Online booking coming soon.' },
-    { q: 'Stadium Tours?', a: 'We offer guided tours on selected weekdays. Please book via email at least 48 hours in advance.' },
-    { q: 'Trials?', a: 'Open trials are announced via our official social media channels. We do not accept unsolicited trial requests.' },
-    { q: 'Press Access?', a: 'Accredited media can apply for matchday passes through the Media Relations office 72 hours before kickoff.' },
-    { q: 'Sponsorship?', a: 'For partnership opportunities, visit our Sponsors page or email commercial@karongaunited.mw.' },
-    { q: 'Fan Club?', a: 'Join the official Karonga Supporters Trust for exclusive updates and away-match travel discounts.' },
-  ]
+  address: ['Karonga United Football Club', 'P.O. Box 50', 'Karonga, Malawi'],
+  emails: ['karongautdfc@gmail.com', 'rpksimwaka1@gmail.com'],
+  phones: ['+265 994 676 444', '+265 885 563 045'],
+  hours: 'Mon–Fri, 9am – 5pm',
+  mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Karonga+Malawi',
+  facebook: 'https://www.facebook.com/profile.php?id=100062249996709',
+  whatsapp: 'https://whatsapp.com/channel/0029VbCssi8Likg2cb9wi70r',
+}
+
+export const faqs = [
+  { q: 'Ticketing?', a: 'Tickets are available at the stadium gates on matchdays. Online booking coming soon.' },
+  { q: 'Trials?', a: 'Open trials are announced via our official Facebook page and WhatsApp channel. We do not accept unsolicited trial requests.' },
+  { q: 'Press Access?', a: 'Accredited media can apply for matchday passes by contacting the club via email ahead of kickoff.' },
+  { q: 'Sponsorship?', a: 'For partnership opportunities, visit our Sponsors page or email karongautdfc@gmail.com.' },
+  { q: 'Fan Club?', a: 'Follow our official Facebook page and WhatsApp channel for exclusive updates and supporter news.' },
+]

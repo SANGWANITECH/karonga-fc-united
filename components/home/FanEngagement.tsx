@@ -39,7 +39,7 @@ export default function FanEngagement() {
               {/* Main image */}
               <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
                 <Image
-                  src="/images/gallery/fans2.jpeg"
+                  src="/images/gallery/fc1.jpeg"
                   alt="Karonga United FC Fans"
                   fill
                   className="object-cover"

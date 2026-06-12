@@ -3,9 +3,10 @@ import { formatTime } from '@/lib/utils'
 import type { Fixture } from '@/types'
 
 const compAbbr: Record<string, string> = {
-  'TNM Super League': 'MSL',
+  'Super League': 'MSL',
   'FDH Bank Cup': 'FDH CUP',
-  'Airtel Top 8 Cup': 'TOP 8',
+  'Airtel Top 8': 'TOP 8',
+  'Friendly': 'FRIENDLY',
 }
 
 export default function FixtureCard({ fixture }: { fixture: Fixture }) {
@@ -97,10 +98,10 @@ export default function FixtureCard({ fixture }: { fixture: Fixture }) {
                 className="px-2 py-0.5 font-bold uppercase"
                 style={{
                   fontSize: '9px',
-                  background: fixture.competition === 'TNM Super League'
+                  background: fixture.competition === 'Super League'
                     ? 'rgba(255,255,255,0.08)'
                     : '#0057B8',
-                  color: fixture.competition === 'TNM Super League'
+                 color: fixture.competition === 'Super League'
                     ? 'rgba(255,255,255,0.6)'
                     : '#fff',
                 }}

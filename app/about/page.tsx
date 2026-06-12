@@ -49,7 +49,7 @@ export default function AboutPage() {
             <div className="lg:col-span-5 relative order-2 lg:order-1">
               <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
                 <Image
-                  src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1800&q=85"
+                   src="/images/gallery/fc10.jpeg"
                   alt="Club heritage"
                   fill
                   className="object-cover"
@@ -237,7 +237,7 @@ export default function AboutPage() {
             {/* Image */}
             <div className="relative min-h-[300px] lg:min-h-0">
               <Image
-                src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=900&q=80"
+                src="/images/gallery/fc5.jpeg"
                 alt="Youth Academy"
                 fill
                 className="object-cover"

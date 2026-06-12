@@ -3,8 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { X, Search, ArrowRight } from 'lucide-react'
-import { players } from '@/data/players'
-import { newsArticles } from '@/data/news'
+import { supabase } from '@/lib/supabase'
 
 // Static pages people might search for
 const pages = [
@@ -31,9 +30,60 @@ interface Result {
   href: string
 }
 
+interface PlayerLite {
+  name: string
+  number: number | null
+  positionLabel: string
+  position: string
+}
+
+interface NewsLite {
+  title: string
+  excerpt: string
+  category: string
+  slug: string
+}
+
 export default function SearchOverlay({ isOpen, onClose }: Props) {
   const [query, setQuery] = useState('')
+  const [players, setPlayers] = useState<PlayerLite[]>([])
+  const [news, setNews] = useState<NewsLite[]>([])
   const router = useRouter()
+
+  // Load players + news from Supabase when the overlay opens (once)
+  useEffect(() => {
+    if (!isOpen) return
+    if (players.length > 0 || news.length > 0) return // already loaded
+
+    const load = async () => {
+      const [playersRes, newsRes] = await Promise.all([
+        supabase.from('players').select('name, number, position, position_label'),
+        supabase.from('news').select('title, excerpt, category, slug'),
+      ])
+
+      if (playersRes.data) {
+        setPlayers(
+          playersRes.data.map((p) => ({
+            name: p.name,
+            number: p.number,
+            positionLabel: p.position_label || p.position,
+            position: p.position,
+          }))
+        )
+      }
+      if (newsRes.data) {
+        setNews(
+          newsRes.data.map((a) => ({
+            title: a.title,
+            excerpt: a.excerpt || '',
+            category: a.category || '',
+            slug: a.slug,
+          }))
+        )
+      }
+    }
+    load()
+  }, [isOpen, players.length, news.length])
 
   // Build searchable results from query
   const results = useMemo<Result[]>(() => {
@@ -52,14 +102,14 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
         matches.push({
           type: 'Player',
           title: p.name,
-          subtitle: `#${p.number} · ${p.positionLabel}`,
+          subtitle: `#${p.number ?? '–'} · ${p.positionLabel}`,
           href: '/team',
         })
       }
     })
 
     // News
-    newsArticles.forEach((a) => {
+    news.forEach((a) => {
       if (
         a.title.toLowerCase().includes(q) ||
         a.excerpt.toLowerCase().includes(q) ||
@@ -76,10 +126,7 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
 
     // Pages
     pages.forEach((p) => {
-      if (
-        p.label.toLowerCase().includes(q) ||
-        p.keywords.includes(q)
-      ) {
+      if (p.label.toLowerCase().includes(q) || p.keywords.includes(q)) {
         matches.push({
           type: 'Page',
           title: p.label,
@@ -90,7 +137,7 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
     })
 
     return matches
-  }, [query])
+  }, [query, players, news])
 
   // Reset + scroll lock + escape key
   useEffect(() => {
@@ -123,15 +170,9 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
   if (!isOpen) return null
 
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex flex-col"
-      style={{ background: 'rgba(10,15,26,0.98)' }}
-    >
+    <div className="fixed inset-0 z-[9999] flex flex-col" style={{ background: 'rgba(10,15,26,0.98)' }}>
       {/* Header */}
-      <div
-        className="flex items-center gap-4 px-6 py-5"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
-      >
+      <div className="flex items-center gap-4 px-6 py-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Search size={22} className="text-club-yellow flex-shrink-0" />
         <input
           autoFocus
@@ -187,7 +228,6 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
                     className="group w-full flex items-center gap-4 p-4 text-left transition-all cursor-pointer hover:bg-white hover:bg-opacity-5"
                     style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
                   >
-                    {/* Type badge */}
                     <span
                       className="text-xs font-bold uppercase tracking-widest px-2 py-1 flex-shrink-0"
                       style={{ background: `${typeColor[r.type]}22`, color: typeColor[r.type], fontSize: '9px' }}
@@ -195,7 +235,6 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
                       {r.type}
                     </span>
 
-                    {/* Text */}
                     <div className="flex-1 min-w-0">
                       <div className="font-heading text-white uppercase leading-tight group-hover:text-club-yellow transition-colors truncate">
                         {r.title}

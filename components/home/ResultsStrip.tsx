@@ -1,7 +1,8 @@
-import { results } from '@/data/results'
-import { fixtures } from '@/data/fixtures'
-import { leagueTable } from '@/data/leagueTable'
+'use client'
+
+import { useEffect, useState } from 'react'
 import { formatShortDate } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 
 function getOrdinal(n: number): string {
   const s = ['th', 'st', 'nd', 'rd']
@@ -9,106 +10,146 @@ function getOrdinal(n: number): string {
   return s[(v - 20) % 10] || s[v] || s[0]
 }
 
-export default function ResultsStrip() {
-  const lastResult = results[0]
-  const nextMatch = fixtures.find((f) => f.status === 'upcoming')
-  const clubRow = leagueTable.find((r) => r.isCurrentClub)
+interface LastResult {
+  opponent: string
+  competition: string
+  kuScore: number
+  opponentScore: number
+}
 
-  const resultLabel =
-    lastResult.kuScore > lastResult.opponentScore
-      ? 'W'
-      : lastResult.kuScore < lastResult.opponentScore
-      ? 'L'
-      : 'D'
+interface NextMatch {
+  opponent: string
+  competition: string
+  venue: string
+  date: string
+  stadium: string
+}
+
+interface ClubRow {
+  position: number
+  played: number
+  points: number
+}
+
+export default function ResultsStrip() {
+  const [lastResult, setLastResult] = useState<LastResult | null>(null)
+  const [nextMatch, setNextMatch] = useState<NextMatch | null>(null)
+  const [clubRow, setClubRow] = useState<ClubRow | null>(null)
+
+  useEffect(() => {
+    const load = async () => {
+      // League table — find Karonga's position
+      const { data: tableData } = await supabase.from('league_table').select('*')
+      if (tableData && tableData.length > 0) {
+        const sorted = [...tableData].sort((a, b) => {
+          if (b.points !== a.points) return b.points - a.points
+          const gdA = a.goals_for - a.goals_against
+          const gdB = b.goals_for - b.goals_against
+          if (gdB !== gdA) return gdB - gdA
+          return b.goals_for - a.goals_for
+        })
+        const idx = sorted.findIndex((r) => r.is_current_club)
+        if (idx !== -1) {
+          setClubRow({
+            position: idx + 1,
+            played: sorted[idx].played,
+            points: sorted[idx].points,
+          })
+        }
+      }
+
+      // Last result
+      const { data: resData } = await supabase
+        .from('results')
+        .select('*')
+        .order('match_date', { ascending: false })
+        .limit(1)
+      if (resData && resData.length > 0) {
+        const r = resData[0]
+        setLastResult({
+          opponent: r.opponent,
+          competition: r.competition,
+          kuScore: r.our_score,
+          opponentScore: r.their_score,
+        })
+      }
+
+      // Next match
+      const today = new Date().toISOString().split('T')[0]
+      const { data: fixData } = await supabase
+        .from('fixtures')
+        .select('*')
+        .gte('match_date', today)
+        .order('match_date', { ascending: true })
+        .limit(1)
+      if (fixData && fixData.length > 0) {
+        const f = fixData[0]
+        setNextMatch({
+          opponent: f.opponent,
+          competition: f.competition,
+          venue: f.venue,
+          date: `${f.match_date}T${f.match_time || '15:00'}:00`,
+          stadium: f.venue === 'home' ? 'Karonga Community Stadium' : `${f.opponent} Stadium`,
+        })
+      }
+    }
+    load()
+  }, [])
+
+  const resultLabel = lastResult
+    ? lastResult.kuScore > lastResult.opponentScore ? 'W'
+      : lastResult.kuScore < lastResult.opponentScore ? 'L' : 'D'
+    : 'D'
 
   const resultColor =
-    resultLabel === 'W'
-      ? '#4ade80'
-      : resultLabel === 'L'
-      ? '#f87171'
-      : 'rgba(255,255,255,0.6)'
+    resultLabel === 'W' ? '#4ade80' : resultLabel === 'L' ? '#f87171' : 'rgba(255,255,255,0.6)'
 
   return (
-    <div
-      className="w-full"
-      style={{ background: '#0a0f1a', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-    >
+    <div className="w-full" style={{ background: '#0a0f1a', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
       <div className="max-w-7xl mx-auto px-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white divide-opacity-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white divide-opacity-5">
 
           {/* Last Result */}
-          <div className="flex items-center gap-6 py-5 md:pr-8">
-            <div
-              className="w-1 h-12 flex-shrink-0"
-              style={{ background: resultColor }}
-            />
-            <div>
-              <div
-                className="text-xs font-bold uppercase tracking-widest mb-2"
-                style={{ color: 'rgba(255,255,255,0.3)' }}
-              >
-                Last Result · {lastResult.competition}
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-bold text-white uppercase tracking-wide">
-                  KUFC
-                </span>
-                <div className="flex items-center gap-2">
-                  <span className="font-heading text-3xl text-club-yellow leading-none">
-                    {lastResult.kuScore}
-                  </span>
+          {lastResult && (
+            <div className="flex items-center gap-6 py-5 md:pr-8">
+              <div className="w-1 h-12 flex-shrink-0" style={{ background: resultColor }} />
+              <div>
+                <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                  Last Result · {lastResult.competition}
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-bold text-white uppercase tracking-wide">KUFC</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-heading text-3xl text-club-yellow leading-none">{lastResult.kuScore}</span>
+                    <span className="font-heading text-xl leading-none" style={{ color: 'rgba(255,255,255,0.2)' }}>—</span>
+                    <span className="font-heading text-3xl text-white leading-none">{lastResult.opponentScore}</span>
+                  </div>
+                  <span className="text-sm font-bold text-white uppercase tracking-wide" style={{ opacity: 0.7 }}>{lastResult.opponent}</span>
                   <span
-                    className="font-heading text-xl leading-none"
-                    style={{ color: 'rgba(255,255,255,0.2)' }}
+                    className="text-xs font-bold px-2 py-0.5"
+                    style={{
+                      background: resultLabel === 'W' ? 'rgba(34,197,94,0.15)' : resultLabel === 'L' ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.08)',
+                      color: resultColor,
+                    }}
                   >
-                    —
-                  </span>
-                  <span className="font-heading text-3xl text-white leading-none">
-                    {lastResult.opponentScore}
+                    {resultLabel}
                   </span>
                 </div>
-                <span className="text-sm font-bold text-white uppercase tracking-wide"
-                  style={{ opacity: 0.7 }}>
-                  {lastResult.opponent}
-                </span>
-                <span
-                  className="text-xs font-bold px-2 py-0.5"
-                  style={{
-                    background: resultLabel === 'W'
-                      ? 'rgba(34,197,94,0.15)'
-                      : resultLabel === 'L'
-                      ? 'rgba(239,68,68,0.15)'
-                      : 'rgba(255,255,255,0.08)',
-                    color: resultColor,
-                  }}
-                >
-                  {resultLabel}
-                </span>
               </div>
             </div>
-          </div>
+          )}
 
           {/* League Position */}
           {clubRow && (
             <div className="flex items-center gap-6 py-5 md:px-8">
-              <div
-                className="w-1 h-12 flex-shrink-0 bg-club-blue"
-              />
+              <div className="w-1 h-12 flex-shrink-0 bg-club-blue" />
               <div>
-                <div
-                  className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: 'rgba(255,255,255,0.3)' }}
-                >
-                  League Standing
-                </div>
+                <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'rgba(255,255,255,0.3)' }}>League Standing</div>
                 <div className="flex items-baseline gap-3">
                   <span className="font-heading text-4xl text-club-yellow leading-none">
                     {clubRow.position}{getOrdinal(clubRow.position)}
                   </span>
-                  <span
-                    className="text-xs uppercase tracking-widest font-bold"
-                    style={{ color: 'rgba(255,255,255,0.4)' }}
-                  >
+                  <span className="text-xs uppercase tracking-widest font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>
                     Played {clubRow.played} · {clubRow.points} Pts
                   </span>
                 </div>
@@ -119,41 +160,23 @@ export default function ResultsStrip() {
           {/* Next Fixture */}
           {nextMatch && (
             <div className="flex items-center gap-6 py-5 md:pl-8">
-              <div
-                className="w-1 h-12 flex-shrink-0 bg-club-yellow"
-              />
+              <div className="w-1 h-12 flex-shrink-0 bg-club-yellow" />
               <div className="flex-1">
-                <div
-                  className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: 'rgba(255,255,255,0.3)' }}
-                >
+                <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
                   Next Match · {nextMatch.competition}
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-sm font-bold text-white uppercase tracking-wide">
-                      vs {nextMatch.opponent}
-                    </span>
-                    <div
-                      className="text-xs mt-0.5 uppercase tracking-widest"
-                      style={{ color: 'rgba(255,255,255,0.4)' }}
-                    >
-                      {nextMatch.stadium}
-                    </div>
+                    <span className="text-sm font-bold text-white uppercase tracking-wide">vs {nextMatch.opponent}</span>
+                    <div className="text-xs mt-0.5 uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>{nextMatch.stadium}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-club-yellow font-bold text-sm">
-                      {formatShortDate(nextMatch.date)}
-                    </div>
+                    <div className="text-club-yellow font-bold text-sm">{formatShortDate(nextMatch.date)}</div>
                     <span
                       className="text-xs font-bold uppercase px-2 py-0.5 mt-1 inline-block"
                       style={{
-                        background: nextMatch.venue === 'home'
-                          ? 'rgba(255,199,44,0.15)'
-                          : 'rgba(255,255,255,0.08)',
-                        color: nextMatch.venue === 'home'
-                          ? '#FFC72C'
-                          : 'rgba(255,255,255,0.5)',
+                        background: nextMatch.venue === 'home' ? 'rgba(255,199,44,0.15)' : 'rgba(255,255,255,0.08)',
+                        color: nextMatch.venue === 'home' ? '#FFC72C' : 'rgba(255,255,255,0.5)',
                       }}
                     >
                       {nextMatch.venue === 'home' ? 'HOME' : 'AWAY'}

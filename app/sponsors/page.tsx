@@ -294,15 +294,15 @@ export default function SponsorsPage() {
             </div>
             <div className="flex flex-col gap-3 w-full md:w-auto flex-shrink-0">
               <a
-                href="mailto:commercial@karongaunited.mw"
-                className="flex items-center justify-center gap-3 bg-club-yellow text-navy px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors"
-              >
-                <Mail size={16} />
-                commercial@karongaunited.mw
-              </a>
-              <p className="text-center text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                +265 (0) 999 000 000
-              </p>
+             href="mailto:karongautdfc@gmail.com"
+             className="flex items-center justify-center gap-3 bg-club-yellow text-navy px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors"
+           >
+             <Mail size={16} />
+             karongautdfc@gmail.com
+           </a>
+           <p className="text-center text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+             +265 994 676 444 · +265 885 563 045
+           </p>
             </div>
           </div>
         </div>

@@ -1,11 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { fixtures } from '@/data/fixtures'
 import FixtureCard from '@/components/fixtures/FixtureCard'
+import { supabase } from '@/lib/supabase'
 
-const competitions = ['All', 'TNM Super League', 'FDH Bank Cup', 'Airtel Top 8 Cup']
+const competitions = ['All', 'Super League', 'FDH Bank Cup', 'Airtel Top 8', 'Friendly']
+
+interface Fixture {
+  id: string
+  opponent: string
+  competition: string
+  venue: string
+  date: string
+  stadium: string
+}
 
 function monthKey(dateStr: string) {
   const d = new Date(dateStr)
@@ -14,18 +23,43 @@ function monthKey(dateStr: string) {
 
 export default function FixturesPage() {
   const [activeComp, setActiveComp] = useState('All')
+  const [fixtures, setFixtures] = useState<Fixture[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase
+        .from('fixtures')
+        .select('*')
+        .order('match_date', { ascending: true })
+
+      if (data) {
+        setFixtures(
+          data.map((f) => ({
+            id: f.id,
+            opponent: f.opponent,
+            competition: f.competition,
+            venue: f.venue,
+            date: `${f.match_date}T${f.match_time || '15:00'}:00`,
+            stadium: f.venue === 'home' ? 'Karonga Community Stadium' : `${f.opponent} Stadium`,
+          }))
+        )
+      }
+      setLoading(false)
+    }
+    load()
+  }, [])
 
   const filtered = activeComp === 'All'
     ? fixtures
     : fixtures.filter((f) => f.competition === activeComp)
 
-  // Group by month
   const grouped = filtered.reduce((acc, fix) => {
     const key = monthKey(fix.date)
     if (!acc[key]) acc[key] = []
     acc[key].push(fix)
     return acc
-  }, {} as Record<string, typeof fixtures>)
+  }, {} as Record<string, Fixture[]>)
 
   return (
     <main style={{ background: '#0a0f1a' }}>
@@ -43,13 +77,10 @@ export default function FixturesPage() {
           />
           <div
             className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(to right, #0a0f1a 0%, rgba(10,15,26,0.85) 50%, rgba(10,15,26,0.4) 100%)',
-            }}
+            style={{ background: 'linear-gradient(to right, #0a0f1a 0%, rgba(10,15,26,0.85) 50%, rgba(10,15,26,0.4) 100%)' }}
           />
         </div>
 
-        {/* Giant watermark */}
         <div
           className="absolute bottom-0 right-6 font-heading leading-none select-none pointer-events-none hidden lg:block"
           style={{ fontSize: '180px', color: 'rgba(255,255,255,0.03)' }}
@@ -77,11 +108,7 @@ export default function FixturesPage() {
       {/* ── Competition Filter ── */}
       <div
         className="sticky top-16 z-40"
-        style={{
-          background: 'rgba(26,31,46,0.95)',
-          backdropFilter: 'blur(8px)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-        }}
+        style={{ background: 'rgba(26,31,46,0.95)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
       >
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center gap-6 overflow-x-auto scrollbar-hide">
           {competitions.map((comp) => (
@@ -89,16 +116,10 @@ export default function FixturesPage() {
               key={comp}
               onClick={() => setActiveComp(comp)}
               className="text-xs font-bold uppercase tracking-widest whitespace-nowrap py-2 transition-colors relative cursor-pointer"
-              style={{
-                color: activeComp === comp ? '#FFC72C' : 'rgba(255,255,255,0.45)',
-              }}
+              style={{ color: activeComp === comp ? '#FFC72C' : 'rgba(255,255,255,0.45)' }}
             >
-              {comp === 'TNM Super League' ? 'Super League' :
-               comp === 'Airtel Top 8 Cup' ? 'Airtel Top 8' :
-               comp === 'FDH Bank Cup' ? 'FDH Cup' : 'All'}
-              {activeComp === comp && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-club-yellow" />
-              )}
+              {comp}
+              {activeComp === comp && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-club-yellow" />}
             </button>
           ))}
         </div>
@@ -106,38 +127,31 @@ export default function FixturesPage() {
 
       {/* ── Fixtures List ── */}
       <div className="max-w-7xl mx-auto px-6 py-16">
-        {Object.keys(grouped).length === 0 ? (
+        {loading ? (
+          <div className="text-center py-20">
+            <p className="text-white uppercase tracking-widest text-sm" style={{ opacity: 0.4 }}>Loading fixtures...</p>
+          </div>
+        ) : Object.keys(grouped).length === 0 ? (
           <div className="text-center py-20">
             <p className="text-white uppercase tracking-widest" style={{ opacity: 0.4 }}>
-              No fixtures in this competition
+              {fixtures.length === 0 ? 'No fixtures scheduled yet' : 'No fixtures in this competition'}
             </p>
           </div>
         ) : (
           <div className="space-y-14">
             {Object.entries(grouped).map(([month, matches]) => (
               <div key={month}>
-                {/* Month header */}
-                <div
-                  className="flex items-center justify-between mb-6 pl-5"
-                  style={{ borderLeft: '4px solid #FFC72C' }}
-                >
+                <div className="flex items-center justify-between mb-6 pl-5" style={{ borderLeft: '4px solid #FFC72C' }}>
                   <div>
-                    <h2 className="font-heading text-2xl sm:text-3xl text-white uppercase">
-                      {month}
-                    </h2>
-                    <p
-                      className="text-xs font-bold uppercase tracking-widest mt-1"
-                      style={{ color: 'rgba(255,255,255,0.35)' }}
-                    >
+                    <h2 className="font-heading text-2xl sm:text-3xl text-white uppercase">{month}</h2>
+                    <p className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>
                       {matches.length} {matches.length === 1 ? 'Match' : 'Matches'} Scheduled
                     </p>
                   </div>
                 </div>
-
-                {/* Match cards */}
                 <div className="space-y-4">
                   {matches.map((fix) => (
-                    <FixtureCard key={fix.id} fixture={fix} />
+                    <FixtureCard key={fix.id} fixture={fix as never} />
                   ))}
                 </div>
               </div>

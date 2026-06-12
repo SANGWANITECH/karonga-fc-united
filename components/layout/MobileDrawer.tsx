@@ -1,14 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
   X, Home, Users, Calendar, Trophy,
   Newspaper, Image as ImageIcon, Handshake, Info, Mail
 } from 'lucide-react'
-import { fixtures } from '@/data/fixtures'
-import { leagueTable } from '@/data/leagueTable'
+import { supabase } from '@/lib/supabase'
 
 const iconMap: Record<string, React.ReactNode> = {
   '/': <Home size={18} />,
@@ -29,10 +28,55 @@ interface Props {
   pathname: string
 }
 
+interface NextMatch {
+  opponent: string
+  venue: string
+}
+
+interface ClubRow {
+  position: number
+  points: number
+  played: number
+}
+
 export default function MobileDrawer({ isOpen, onClose, navLinks, pathname }: Props) {
-  // Pull live data — ready for CMS later
-  const clubRow = leagueTable.find((row) => row.isCurrentClub)
-  const nextMatch = fixtures.find((f) => f.status === 'upcoming')
+  const [nextMatch, setNextMatch] = useState<NextMatch | null>(null)
+  const [clubRow, setClubRow] = useState<ClubRow | null>(null)
+
+  // Load next match + league position from Supabase
+  useEffect(() => {
+    const load = async () => {
+      // League position — find Karonga
+      const { data: tableData } = await supabase.from('league_table').select('*')
+      if (tableData && tableData.length > 0) {
+        const sorted = [...tableData].sort((a, b) => {
+          if (b.points !== a.points) return b.points - a.points
+          const gdA = a.goals_for - a.goals_against
+          const gdB = b.goals_for - b.goals_against
+          if (gdB !== gdA) return gdB - gdA
+          return b.goals_for - a.goals_for
+        })
+        const idx = sorted.findIndex((r) => r.is_current_club)
+        if (idx !== -1) {
+          setClubRow({ position: idx + 1, points: sorted[idx].points, played: sorted[idx].played })
+        }
+      }
+
+      // Next match
+      const today = new Date().toISOString().split('T')[0]
+      const { data } = await supabase
+        .from('fixtures')
+        .select('opponent, venue, match_date')
+        .gte('match_date', today)
+        .order('match_date', { ascending: true })
+        .limit(1)
+
+      if (data && data.length > 0) {
+        setNextMatch({ opponent: data[0].opponent, venue: data[0].venue })
+      }
+    }
+    load()
+  }, [])
 
   useEffect(() => {
     if (!isOpen) return
@@ -82,20 +126,11 @@ export default function MobileDrawer({ isOpen, onClose, navLinks, pathname }: Pr
                 className="relative w-14 h-14 rounded-full border-2 border-club-yellow overflow-hidden flex-shrink-0"
                 style={{ boxShadow: '0 0 20px rgba(255,199,44,0.25)' }}
               >
-                <Image
-                  src="/images/logo.avif"
-                  alt="KUFC"
-                  fill
-                  className="object-cover"
-                />
+                <Image src="/images/logo.avif" alt="KUFC" fill className="object-cover" />
               </div>
               <div>
-                <div className="font-heading text-2xl text-white uppercase leading-none">
-                  The Crocodiles
-                </div>
-                <div className="text-xs text-club-yellow uppercase tracking-widest mt-1 font-bold">
-                  Karonga United FC
-                </div>
+                <div className="font-heading text-2xl text-white uppercase leading-none">The Crocodiles</div>
+                <div className="text-xs text-club-yellow uppercase tracking-widest mt-1 font-bold">Karonga United FC</div>
               </div>
             </div>
             <button
@@ -107,27 +142,21 @@ export default function MobileDrawer({ isOpen, onClose, navLinks, pathname }: Pr
             </button>
           </div>
 
-          {/* League position badge — from data */}
+          {/* League position badge — from Supabase */}
           {clubRow && (
             <div className="mt-4 flex items-center gap-3 bg-club-blue bg-opacity-20 border border-club-blue border-opacity-30 px-4 py-2">
               <div className="text-center">
-                <div className="font-heading text-2xl text-club-yellow leading-none">
-                  {clubRow.position}
-                </div>
+                <div className="font-heading text-2xl text-club-yellow leading-none">{clubRow.position}</div>
                 <div className="text-xs text-white opacity-40 uppercase">Position</div>
               </div>
               <div className="w-px h-8 bg-white opacity-10" />
               <div className="text-center">
-                <div className="font-heading text-2xl text-white leading-none">
-                  {clubRow.points}
-                </div>
+                <div className="font-heading text-2xl text-white leading-none">{clubRow.points}</div>
                 <div className="text-xs text-white opacity-40 uppercase">Points</div>
               </div>
               <div className="w-px h-8 bg-white opacity-10" />
               <div className="text-center">
-                <div className="font-heading text-2xl text-white leading-none">
-                  {clubRow.played}
-                </div>
+                <div className="font-heading text-2xl text-white leading-none">{clubRow.played}</div>
                 <div className="text-xs text-white opacity-40 uppercase">Played</div>
               </div>
             </div>
@@ -149,16 +178,14 @@ export default function MobileDrawer({ isOpen, onClose, navLinks, pathname }: Pr
               style={{ opacity: pathname === link.href ? 1 : 0.7 }}
             >
               <span>{iconMap[link.href]}</span>
-              <span className="text-xs font-bold uppercase tracking-widest">
-                {link.label}
-              </span>
+              <span className="text-xs font-bold uppercase tracking-widest">{link.label}</span>
               {pathname === link.href && (
                 <span className="ml-auto w-1.5 h-1.5 rounded-full bg-club-yellow" />
               )}
             </Link>
           ))}
 
-          {/* Contact — separate, own icon */}
+          {/* Contact — separate */}
           <Link
             href="/contact"
             className={[
@@ -179,24 +206,17 @@ export default function MobileDrawer({ isOpen, onClose, navLinks, pathname }: Pr
 
         {/* Footer */}
         <div className="px-6 py-5 border-t border-white border-opacity-10">
-          {/* Next match teaser — from data */}
+          {/* Next match teaser — from Supabase */}
           {nextMatch && (
             <div className="bg-club-blue bg-opacity-20 border border-club-blue border-opacity-30 px-4 py-3 mb-4">
-              <div className="text-xs text-club-yellow uppercase tracking-widest font-bold mb-1">
-                Next Match
-              </div>
+              <div className="text-xs text-club-yellow uppercase tracking-widest font-bold mb-1">Next Match</div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-white font-bold">
-                  vs {nextMatch.opponent}
-                </span>
-                <span className="text-xs text-white opacity-50 uppercase">
-                  {nextMatch.venue}
-                </span>
+                <span className="text-sm text-white font-bold">vs {nextMatch.opponent}</span>
+                <span className="text-xs text-white opacity-50 uppercase">{nextMatch.venue}</span>
               </div>
             </div>
           )}
-          <p className="text-xs text-white uppercase tracking-widest text-center"
-            style={{ opacity: 0.2 }}>
+          <p className="text-xs text-white uppercase tracking-widest text-center" style={{ opacity: 0.2 }}>
             © 2026 Karonga United FC
           </p>
         </div>

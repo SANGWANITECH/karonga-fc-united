@@ -8,9 +8,8 @@ import { Menu, Search } from 'lucide-react'
 import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
 import MobileDrawer from './MobileDrawer'
 import SearchOverlay from './SearchOverlay'
-import { fixtures } from '@/data/fixtures'
-import { leagueTable } from '@/data/leagueTable'
 import { formatShortDate } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -36,14 +35,24 @@ function getOrdinal(n: number): string {
   return s[(v - 20) % 10] || s[v] || s[0]
 }
 
+interface NextMatch {
+  opponent: string
+  venue: string
+  date: string
+}
+
+interface ClubRow {
+  position: number
+  points: number
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [nextMatch, setNextMatch] = useState<NextMatch | null>(null)
+  const [clubRow, setClubRow] = useState<ClubRow | null>(null)
   const pathname = usePathname()
-
-  const clubRow = leagueTable.find((row) => row.isCurrentClub)
-  const nextMatch = fixtures.find((f) => f.status === 'upcoming')
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -55,6 +64,46 @@ export default function Navbar() {
     setDrawerOpen(false)
   }, [pathname])
 
+  // Load next match + league position from Supabase
+  useEffect(() => {
+    const load = async () => {
+      // League position — find Karonga
+      const { data: tableData } = await supabase.from('league_table').select('*')
+      if (tableData && tableData.length > 0) {
+        const sorted = [...tableData].sort((a, b) => {
+          if (b.points !== a.points) return b.points - a.points
+          const gdA = a.goals_for - a.goals_against
+          const gdB = b.goals_for - b.goals_against
+          if (gdB !== gdA) return gdB - gdA
+          return b.goals_for - a.goals_for
+        })
+        const idx = sorted.findIndex((r) => r.is_current_club)
+        if (idx !== -1) {
+          setClubRow({ position: idx + 1, points: sorted[idx].points })
+        }
+      }
+
+      // Next match
+      const today = new Date().toISOString().split('T')[0]
+      const { data } = await supabase
+        .from('fixtures')
+        .select('opponent, venue, match_date, match_time')
+        .gte('match_date', today)
+        .order('match_date', { ascending: true })
+        .limit(1)
+
+      if (data && data.length > 0) {
+        const f = data[0]
+        setNextMatch({
+          opponent: f.opponent,
+          venue: f.venue,
+          date: `${f.match_date}T${f.match_time || '15:00'}:00`,
+        })
+      }
+    }
+    load()
+  }, [])
+
   return (
     <>
       {/* ── Top Info Bar — Desktop ── */}
@@ -65,10 +114,7 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              <span
-                className="text-xs font-bold uppercase tracking-widest"
-                style={{ color: 'rgba(255,255,255,0.5)' }}
-              >
+              <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
                 TNM Super League
               </span>
             </div>
@@ -87,10 +133,7 @@ export default function Navbar() {
             {nextMatch && (
               <>
                 <div className="w-px h-3 bg-white opacity-20" />
-                <span
-                  className="text-xs font-bold uppercase tracking-widest"
-                  style={{ color: 'rgba(255,255,255,0.4)' }}
-                >
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
                   Next:
                 </span>
                 <span className="text-xs font-bold uppercase tracking-widest text-white">
@@ -99,21 +142,14 @@ export default function Navbar() {
                 <span
                   className="text-xs font-bold uppercase px-2 py-0.5 tracking-wider"
                   style={{
-                    background: nextMatch.venue === 'home'
-                      ? 'rgba(255,199,44,0.2)'
-                      : 'rgba(255,255,255,0.1)',
-                    color: nextMatch.venue === 'home'
-                      ? '#FFC72C'
-                      : 'rgba(255,255,255,0.6)',
+                    background: nextMatch.venue === 'home' ? 'rgba(255,199,44,0.2)' : 'rgba(255,255,255,0.1)',
+                    color: nextMatch.venue === 'home' ? '#FFC72C' : 'rgba(255,255,255,0.6)',
                     fontSize: '10px',
                   }}
                 >
                   {nextMatch.venue === 'home' ? 'HOME' : 'AWAY'}
                 </span>
-                <span
-                  className="text-xs uppercase tracking-widest font-bold"
-                  style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px' }}
-                >
+                <span className="text-xs uppercase tracking-widest font-bold" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px' }}>
                   {formatShortDate(nextMatch.date)}
                 </span>
               </>
@@ -140,18 +176,12 @@ export default function Navbar() {
 
       {/* ── Top Info Bar — Mobile Ticker ── */}
       <div className="bg-club-blue md:hidden overflow-hidden h-8 flex items-center">
-        <div
-          className="flex items-center whitespace-nowrap"
-          style={{ animation: 'ticker 18s linear infinite' }}
-        >
+        <div className="flex items-center whitespace-nowrap" style={{ animation: 'ticker 18s linear infinite' }}>
           {[0, 1].map((rep) => (
             <div key={rep} className="flex items-center gap-3 pl-6">
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                <span
-                  className="text-xs font-bold uppercase tracking-widest"
-                  style={{ color: 'rgba(255,255,255,0.6)' }}
-                >
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.6)' }}>
                   TNM Super League
                 </span>
               </div>
@@ -174,12 +204,8 @@ export default function Navbar() {
                   <span
                     className="text-xs font-bold uppercase px-2 py-0.5"
                     style={{
-                      background: nextMatch.venue === 'home'
-                        ? 'rgba(255,199,44,0.2)'
-                        : 'rgba(255,255,255,0.1)',
-                      color: nextMatch.venue === 'home'
-                        ? '#FFC72C'
-                        : 'rgba(255,255,255,0.6)',
+                      background: nextMatch.venue === 'home' ? 'rgba(255,199,44,0.2)' : 'rgba(255,255,255,0.1)',
+                      color: nextMatch.venue === 'home' ? '#FFC72C' : 'rgba(255,255,255,0.6)',
                       fontSize: '10px',
                     }}
                   >
@@ -203,9 +229,7 @@ export default function Navbar() {
       <header
         className={[
           'sticky top-0 w-full z-50 transition-all duration-300',
-          scrolled
-            ? 'bg-navy shadow-2xl'
-            : 'bg-navy border-b border-white border-opacity-10',
+          scrolled ? 'bg-navy shadow-2xl' : 'bg-navy border-b border-white border-opacity-10',
         ].join(' ')}
         style={scrolled ? { borderBottom: '2px solid #FFC72C' } : {}}
       >
@@ -217,26 +241,14 @@ export default function Navbar() {
               className="relative w-11 h-11 rounded-full border-2 border-club-yellow overflow-hidden flex-shrink-0 transition-all duration-300 group-hover:border-white"
               style={{ boxShadow: '0 0 20px rgba(255,199,44,0.25)' }}
             >
-              <Image
-                src="/images/logo.avif"
-                alt="Karonga United FC"
-                fill
-                className="object-cover"
-                priority
-              />
+              <Image src="/images/logo.avif" alt="Karonga United FC" fill className="object-cover" priority />
             </div>
             <div className="hidden sm:block">
-              <div
-                className="font-heading text-xl leading-none text-white uppercase"
-                style={{ letterSpacing: '0.05em' }}
-              >
+              <div className="font-heading text-xl leading-none text-white uppercase" style={{ letterSpacing: '0.05em' }}>
                 Karonga United
               </div>
               <div className="flex items-center gap-2 mt-0.5">
-                <span
-                  className="text-club-yellow uppercase tracking-widest font-bold"
-                  style={{ fontSize: '12px' }}
-                >
+                <span className="text-club-yellow uppercase tracking-widest font-bold" style={{ fontSize: '12px' }}>
                   The Crocodiles
                 </span>
               </div>
@@ -251,14 +263,9 @@ export default function Navbar() {
                 href={link.href}
                 className={[
                   'relative h-16 flex items-center px-3 font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap',
-                  pathname === link.href
-                    ? 'text-club-yellow'
-                    : 'text-white hover:text-club-yellow',
+                  pathname === link.href ? 'text-club-yellow' : 'text-white hover:text-club-yellow',
                 ].join(' ')}
-                style={{
-                  fontSize: '11px',
-                  opacity: pathname === link.href ? 1 : 0.8,
-                }}
+                style={{ fontSize: '11px', opacity: pathname === link.href ? 1 : 0.8 }}
               >
                 {link.label}
                 {pathname === link.href && (

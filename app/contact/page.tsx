@@ -3,14 +3,12 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { MapPin, Mail, Phone, Send, ExternalLink } from 'lucide-react'
-import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
+import { FaFacebookF, FaWhatsapp } from 'react-icons/fa'
 import { contactInfo, faqs } from '@/data/contact'
 
 const socials = [
-  { icon: <FaFacebookF size={16} />, label: 'Facebook', href: '#' },
-  { icon: <FaTwitter size={16} />, label: 'Twitter', href: '#' },
-  { icon: <FaInstagram size={16} />, label: 'Instagram', href: '#' },
-  { icon: <FaYoutube size={16} />, label: 'YouTube', href: '#' },
+  { icon: <FaFacebookF size={16} />, label: 'Facebook', href: contactInfo.facebook },
+  { icon: <FaWhatsapp size={16} />, label: 'WhatsApp', href: contactInfo.whatsapp },
 ]
 
 const subjects = [
@@ -29,7 +27,7 @@ export default function ContactPage() {
 
   const handleSend = () => {
     const body = `Name: ${name}%0AEmail: ${email}%0A%0A${encodeURIComponent(message)}`
-    const mailto = `mailto:info@karongaunited.mw?subject=${encodeURIComponent(subject)}&body=${body}`
+    const mailto = `mailto:karongautdfc@gmail.com?subject=${encodeURIComponent(subject)}&body=${body}`
     window.location.href = mailto
   }
 
@@ -45,7 +43,7 @@ export default function ContactPage() {
       <section className="relative h-72 sm:h-96 flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1800&q=85"
+            src="/images/gallery/fc9.jpeg"
             alt="Contact"
             fill
             className="object-cover"
@@ -66,7 +64,7 @@ export default function ContactPage() {
               Get In <span className="text-club-yellow">Touch</span>
             </h1>
             <p className="text-sm sm:text-base max-w-lg" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Connect with the Crocodiles. Whether you're a supporter, sponsor, or media —
+              Connect with the Crocodiles. Whether you're a supporter, sponsor, or media 
               our team is ready to assist you.
             </p>
           </div>
@@ -126,10 +124,11 @@ export default function ContactPage() {
                 </h4>
                 <div className="flex gap-3">
                   {socials.map((s) => (
-                    
                     <a
                       key={s.label}
                       href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       aria-label={s.label}
                       className="w-11 h-11 flex items-center justify-center transition-all hover:bg-club-yellow hover:text-navy"
                       style={{ background: '#1a1f2e', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}
@@ -238,9 +237,9 @@ export default function ContactPage() {
           className="absolute bottom-6 left-6 z-20 p-6 max-w-sm hidden md:block"
           style={{ background: 'rgba(15,23,42,0.92)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)' }}
         >
-          <h4 className="font-heading text-xl text-club-yellow uppercase mb-2">Stadium Location</h4>
+          <h4 className="font-heading text-xl text-club-yellow uppercase mb-2">Find Us</h4>
           <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            Home of the Crocodiles. Visit us for matchdays or club tours.
+            Based in Karonga, the pride of the North. Reach out anytime.
           </p>
           <a
             href={contactInfo.mapsUrl}
@@ -260,7 +259,6 @@ export default function ContactPage() {
             <h2 className="font-heading text-3xl sm:text-5xl text-white uppercase mb-4">
               Frequently <span className="text-club-yellow">Asked</span>
             </h2>
-            <div className="w-20 h-1 bg-club-yellow mx-auto" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

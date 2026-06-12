@@ -2,9 +2,10 @@ import { formatDate } from '@/lib/utils'
 import type { Result } from '@/types'
 
 const compAbbr: Record<string, string> = {
-  'TNM Super League': 'MSL',
+  'Super League': 'MSL',
   'FDH Bank Cup': 'FDH CUP',
-  'Airtel Top 8 Cup': 'TOP 8',
+  'Airtel Top 8': 'TOP 8',
+  'Friendly': 'FRIENDLY',
 }
 
 export default function ResultCard({ result }: { result: Result }) {
@@ -63,10 +64,10 @@ export default function ResultCard({ result }: { result: Result }) {
             className="text-xs font-bold uppercase px-2 py-0.5"
             style={{
               fontSize: '9px',
-              background: result.competition === 'TNM Super League'
-                ? 'rgba(255,255,255,0.08)' : '#0057B8',
-              color: result.competition === 'TNM Super League'
-                ? 'rgba(255,255,255,0.6)' : '#fff',
+              background: result.competition === 'Super League'
+              ? 'rgba(255,255,255,0.08)' : '#0057B8',
+            color: result.competition === 'Super League'
+              ? 'rgba(255,255,255,0.6)' : '#fff',
             }}
           >
             {compAbbr[result.competition] ?? 'CUP'}

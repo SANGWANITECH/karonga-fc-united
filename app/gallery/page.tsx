@@ -3,32 +3,65 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
-import { galleryImages } from '@/data/gallery'
+import { supabase } from '@/lib/supabase'
 
-const categories = ['All', 'Match Action', 'Training', 'Fans', 'Team']
+const categories = ['All', 'Matchday', 'Training', 'Fans', 'Community', 'General']
 
 const catColor: Record<string, string> = {
-  'Match Action': '#FFC72C',
+  'Matchday': '#FFC72C',
   'Training': '#1a6fcc',
   'Fans': '#4ade80',
-  'Team': '#0057B8',
+  'Community': '#0057B8',
+  'General': '#FFC72C',
+}
+
+interface Photo {
+  id: string
+  src: string
+  title: string
+  category: string
+  size?: string
 }
 
 export default function GalleryPage() {
   const [activeCat, setActiveCat] = useState('All')
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [photos, setPhotos] = useState<Photo[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase
+        .from('gallery')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (data) {
+        setPhotos(
+          data.map((p, i) => ({
+            id: p.id,
+            src: p.image_url,
+            title: p.caption || 'Karonga United FC',
+            category: p.category || 'General',
+            // Auto bento: every 5th photo is large for visual variety
+            size: i % 5 === 0 ? 'large' : undefined,
+          }))
+        )
+      }
+      setLoading(false)
+    }
+    load()
+  }, [])
 
   const filtered = activeCat === 'All'
-    ? galleryImages
-    : galleryImages.filter((img) => img.category === activeCat)
+    ? photos
+    : photos.filter((img) => img.category === activeCat)
 
-  // Lightbox controls
   const openLightbox = (i: number) => setLightboxIndex(i)
   const closeLightbox = () => setLightboxIndex(null)
   const prev = () => setLightboxIndex((i) => (i === null ? null : (i - 1 + filtered.length) % filtered.length))
   const next = () => setLightboxIndex((i) => (i === null ? null : (i + 1) % filtered.length))
 
-  // Keyboard nav + scroll lock
   useEffect(() => {
     if (lightboxIndex === null) return
     const handleKey = (e: KeyboardEvent) => {
@@ -46,7 +79,6 @@ export default function GalleryPage() {
 
   const activeImg = lightboxIndex !== null ? filtered[lightboxIndex] : null
 
-  // Bento span helper
   const spanClass = (size?: string) => {
     if (size === 'large') return 'sm:col-span-2 sm:row-span-2'
     if (size === 'wide') return 'sm:col-span-2'
@@ -60,7 +92,7 @@ export default function GalleryPage() {
       <section className="relative h-80 sm:h-96 flex items-end overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1800&q=85"
+            src="/images/gallery/fc9.jpeg"
             alt="Gallery"
             fill
             className="object-cover"
@@ -69,9 +101,7 @@ export default function GalleryPage() {
           />
           <div
             className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(to top, #0a0f1a 0%, rgba(10,15,26,0.6) 50%, rgba(10,15,26,0.3) 100%)',
-            }}
+            style={{ background: 'linear-gradient(to top, #0a0f1a 0%, rgba(10,15,26,0.6) 50%, rgba(10,15,26,0.3) 100%)' }}
           />
         </div>
 
@@ -120,43 +150,38 @@ export default function GalleryPage() {
         </div>
 
         {/* ── Bento Grid ── */}
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-20">
+            <p className="text-white uppercase tracking-widest text-sm" style={{ opacity: 0.4 }}>Loading gallery...</p>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-white uppercase tracking-widest" style={{ opacity: 0.4 }}>
-              No photos in this category
+              {photos.length === 0 ? 'No photos yet' : 'No photos in this category'}
             </p>
           </div>
         ) : (
-          <div
-            className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"
-            style={{ gridAutoRows: '180px' }}
-          >
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4" style={{ gridAutoRows: '180px' }}>
             {filtered.map((img, i) => (
               <button
                 key={img.id}
                 onClick={() => openLightbox(i)}
-                className={[
-                  'group relative overflow-hidden cursor-pointer',
-                  spanClass(img.size),
-                ].join(' ')}
+                className={['group relative overflow-hidden cursor-pointer', spanClass(img.size)].join(' ')}
                 style={{ background: '#1a1f2e' }}
               >
                 <Image
                   src={img.src}
                   alt={img.title}
                   fill
+                  unoptimized
+                  loading="lazy"
                   className="object-cover transition-all duration-700 group-hover:scale-105"
-                  style={{ filter: 'grayscale(60%)' }}
                 />
-                {/* Hover overlay */}
                 <div
                   className="absolute inset-0 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)' }}
                 >
-                  <span
-                    className="text-xs font-bold uppercase tracking-widest mb-1"
-                    style={{ color: catColor[img.category] }}
-                  >
+                  <span className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: catColor[img.category] || '#FFC72C' }}>
                     {img.category}
                   </span>
                   <h3 className="font-heading text-base sm:text-lg text-white uppercase leading-tight">
@@ -176,7 +201,6 @@ export default function GalleryPage() {
           style={{ background: 'rgba(0,0,0,0.95)' }}
           onClick={closeLightbox}
         >
-          {/* Close */}
           <button
             onClick={closeLightbox}
             aria-label="Close"
@@ -185,7 +209,6 @@ export default function GalleryPage() {
             <X size={28} />
           </button>
 
-          {/* Prev */}
           <button
             onClick={(e) => { e.stopPropagation(); prev() }}
             aria-label="Previous"
@@ -194,24 +217,14 @@ export default function GalleryPage() {
             <ChevronLeft size={36} />
           </button>
 
-          {/* Image */}
           <div
             className="relative w-full max-w-4xl mx-12 sm:mx-16"
             style={{ height: '80vh' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <Image
-              src={activeImg.src}
-              alt={activeImg.title}
-              fill
-              className="object-contain"
-            />
-            {/* Caption */}
+            <Image src={activeImg.src} alt={activeImg.title} fill unoptimized className="object-contain" />
             <div className="absolute bottom-0 left-0 right-0 text-center pb-2">
-              <span
-                className="text-xs font-bold uppercase tracking-widest"
-                style={{ color: catColor[activeImg.category] }}
-              >
+              <span className="text-xs font-bold uppercase tracking-widest" style={{ color: catColor[activeImg.category] || '#FFC72C' }}>
                 {activeImg.category}
               </span>
               <h3 className="font-heading text-xl text-white uppercase mt-1">
@@ -220,7 +233,6 @@ export default function GalleryPage() {
             </div>
           </div>
 
-          {/* Next */}
           <button
             onClick={(e) => { e.stopPropagation(); next() }}
             aria-label="Next"
@@ -229,11 +241,7 @@ export default function GalleryPage() {
             <ChevronRight size={36} />
           </button>
 
-          {/* Counter */}
-          <div
-            className="absolute bottom-5 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-widest"
-            style={{ color: 'rgba(255,255,255,0.5)' }}
-          >
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
             {lightboxIndex! + 1} / {filtered.length}
           </div>
         </div>

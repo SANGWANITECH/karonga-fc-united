@@ -3,19 +3,23 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { MapPin, Calendar } from 'lucide-react'
-import { fixtures } from '@/data/fixtures'
 import { formatDate, formatTime, getTimeUntil } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 
 function Countdown({ dateString }: { dateString: string }) {
+  const [mounted, setMounted] = useState(false)
   const [time, setTime] = useState(getTimeUntil(dateString))
 
   useEffect(() => {
+    setMounted(true)
     const interval = setInterval(() => {
       setTime(getTimeUntil(dateString))
     }, 1000)
     return () => clearInterval(interval)
   }, [dateString])
 
+  // Avoid hydration mismatch — render nothing until mounted in the browser
+  if (!mounted) return null
   if (time.isPast) return null
 
   const parts = [
@@ -46,23 +50,56 @@ function Countdown({ dateString }: { dateString: string }) {
   )
 }
 
+interface NextMatch {
+  opponent: string
+  competition: string
+  venue: string
+  date: string
+  stadium: string
+}
+
 export default function NextFixture() {
-  const next = fixtures.find((f) => f.status === 'upcoming')
+  const [next, setNext] = useState<NextMatch | null>(null)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    const load = async () => {
+      const today = new Date().toISOString().split('T')[0]
+      const { data } = await supabase
+        .from('fixtures')
+        .select('*')
+        .gte('match_date', today)
+        .order('match_date', { ascending: true })
+        .limit(1)
+
+      if (data && data.length > 0) {
+        const f = data[0]
+        setNext({
+          opponent: f.opponent,
+          competition: f.competition,
+          venue: f.venue,
+          date: `${f.match_date}T${f.match_time || '15:00'}:00`,
+          stadium: f.venue === 'home' ? 'Karonga Community Stadium' : `${f.opponent} Stadium`,
+        })
+      }
+      setLoaded(true)
+    }
+    load()
+  }, [])
+
+  // Don't show the section if no upcoming match
+  if (loaded && !next) return null
   if (!next) return null
 
   return (
     <section className="py-16 sm:py-24 gradient-club relative overflow-hidden">
-      {/* Decorative pitch pattern */}
       <div className="absolute inset-0 pitch-pattern opacity-30" />
 
       <div className="relative max-w-7xl mx-auto px-6">
 
-        {/* Section label */}
         <div className="flex items-center gap-3 mb-10">
           <div className="w-0.5 h-4 bg-club-yellow" />
-          <span className="text-xs font-bold uppercase tracking-widest text-club-yellow">
-            Next Match
-          </span>
+          <span className="text-xs font-bold uppercase tracking-widest text-club-yellow">Next Match</span>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -74,7 +111,6 @@ export default function NextFixture() {
               {next.competition}
             </div>
 
-            {/* Teams */}
             <div className="flex items-center gap-6 mb-8">
               <div className="text-center">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-club-yellow bg-navy-800 flex items-center justify-center mb-3">
@@ -88,7 +124,7 @@ export default function NextFixture() {
               </div>
 
               <div className="text-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white bg-navy-800 flex items-center justify-center mb-3"
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 bg-navy-800 flex items-center justify-center mb-3"
                   style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
                   <span className="font-heading text-white text-2xl opacity-60">
                     {next.opponent.slice(0, 2).toUpperCase()}
@@ -98,7 +134,6 @@ export default function NextFixture() {
               </div>
             </div>
 
-            {/* Date & venue */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3 text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
                 <Calendar size={14} className="text-club-yellow flex-shrink-0" />
@@ -109,9 +144,7 @@ export default function NextFixture() {
                 <span>{next.stadium}</span>
                 <span
                   className={`text-xs font-bold uppercase tracking-widest px-2 py-0.5 ${
-                    next.venue === 'home'
-                      ? 'bg-club-yellow text-navy'
-                      : 'border text-white'
+                    next.venue === 'home' ? 'bg-club-yellow text-navy' : 'border text-white'
                   }`}
                   style={next.venue !== 'home' ? { borderColor: 'rgba(255,255,255,0.3)', color: 'rgba(255,255,255,0.5)' } : {}}
                 >
@@ -136,11 +169,11 @@ export default function NextFixture() {
                 All Fixtures
               </Link>
               <Link
-                href="/stadium"
+                href="/contact"
                 className="px-6 py-3 border text-xs font-bold uppercase tracking-widest hover:border-club-yellow hover:text-club-yellow transition-colors"
                 style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'rgba(255,255,255,0.7)' }}
               >
-                Stadium Info
+                Contact
               </Link>
             </div>
           </div>

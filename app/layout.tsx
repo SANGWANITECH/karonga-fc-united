@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
-import AppShell from '@/components/layout/AppShell'
+import PublicChrome from '@/components/layout/PublicChrome'
+
 export const metadata: Metadata = {
   title: {
     default: 'Karonga United FC — The Crocodiles of Karonga',
@@ -10,6 +9,10 @@ export const metadata: Metadata = {
   },
   description: 'Official website of Karonga United FC — The Crocodiles of Karonga. Malawi Super League football club based in Karonga.',
 }
+
+
+
+
 
 export default function RootLayout({
   children,
@@ -27,12 +30,8 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col bg-navy">
-  <AppShell>
-    <Navbar />
-    <main className="flex-1">{children}</main>
-    <Footer />
-  </AppShell>
-</body>
+        <PublicChrome>{children}</PublicChrome>
+      </body>
     </html>
   )
 }
