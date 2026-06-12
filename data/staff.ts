@@ -19,7 +19,7 @@ export const staff: StaffMember[] = [
   },
   {
     id: 'st3',
-    name: 'Lloyd Munthali',
+    name: ' Fortune Mhango',
     role: 'Second Assistant Coach',
     image: '/images/players/staff3.jpeg',
     bio: 'Works alongside the coaching staff to sharpen tactical detail and support the squad through the demands of the season.',
@@ -33,7 +33,7 @@ export const staff: StaffMember[] = [
   },
   {
     id: 'st5',
-    name: 'James Msowoya',
+    name: 'Lloyd Munthali',
     role: 'Fitness Coach',
     image: '/images/players/staff5.jpeg',
     bio: 'Responsible for the physical conditioning of the squad, keeping players strong, sharp, and ready for ninety minutes of competitive football.',

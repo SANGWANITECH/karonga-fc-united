@@ -24,7 +24,7 @@ export const leadership = [
   
   { id: 'l1', name: 'Alufeyo Chipanga Banda', role: 'Executive Chairman',  image: '/images/players/staf1.jpeg'},
   { id: 'l2', name: 'Ramzy Simwaka', role: 'General Secretary', image: '/images/players/staf2.png' },
-  { id: 'l3', name: 'Bennie Mwahimba', role: 'Team Manager ',  image: '/images/players/staff3.jpeg', },
+  { id: 'l3', name: 'Bennie Mwahimba', role: 'Team Manager ',  image: '/images/players/staf3.jpeg', },
   { id: 'l4', name: 'Hygiene Mwandepeka ', role: 'Ass. Team Manager ',  image: '/images/players/staf4.jpeg',},
 ]
 
