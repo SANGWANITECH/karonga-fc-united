@@ -1,9 +1,16 @@
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Eye, Target, Trophy, Medal, Award } from 'lucide-react'
 import { clubInfo, milestones, leadership, trophies } from '@/data/about'
 
+export const metadata: Metadata = {
+  title: 'About the Club',
+  description: 'The story of Karonga United FC — The Crocodiles of Karonga. Founded in 2008, based at Karonga Boma, competing in the elite league since 2017. Our history, vision, mission, and honours.',
+}
+
 export default function AboutPage() {
+ 
   return (
     <main style={{ background: '#0a0f1a' }}>
 
