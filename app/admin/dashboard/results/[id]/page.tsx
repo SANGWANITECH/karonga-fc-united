@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Loader2, ArrowLeft, Info, Activity } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
-const competitions = ['Super League', 'FDH Bank Cup', 'Airtel Top 8', 'Friendly']
+const competitions = ['FDH Bank Premiership', 'Castel Cup', 'FDH Bank Cup', 'Airtel Top 8', 'Friendly']
 
 export default function ResultEditorPage() {
   const router = useRouter()

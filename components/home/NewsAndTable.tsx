@@ -233,7 +233,7 @@ export default function NewsAndTable() {
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-0.5 h-5 bg-club-yellow" />
                 <span className="text-xs font-bold uppercase tracking-widest text-club-yellow">
-                  TNM Super League
+                  FDH Bank Premiership
                 </span>
               </div>
               <h2 className="font-heading text-4xl sm:text-5xl text-white uppercase">

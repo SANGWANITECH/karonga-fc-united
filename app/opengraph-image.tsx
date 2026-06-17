@@ -75,7 +75,7 @@ export default async function Image() {
             fontWeight: 700,
           }}
         >
-          TNM Super League · Est. 2008
+          FDH Bank Premiership · Est. 2008
         </div>
 
         {/* Yellow bottom accent bar */}

@@ -61,8 +61,8 @@ export default function ResultsPage() {
 
   const filtered = results.filter((r) => {
     if (activeFilter === 'All') return true
-    if (activeFilter === 'League') return r.competition === 'Super League'
-    return r.competition !== 'Super League'
+  if (activeFilter === 'League') return r.competition === 'FDH Bank Premiership'
+    return r.competition !== 'FDH Bank Premiership'
   })
 
   const latest = results[0]
@@ -210,7 +210,7 @@ export default function ResultsPage() {
             <div>
               <h2 className="font-heading text-2xl sm:text-3xl text-white uppercase">League Standings</h2>
               <p className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                TNM Super League · 2026
+                FDH Bank Premiership · 2026
               </p>
             </div>
           </div>

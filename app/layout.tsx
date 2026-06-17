@@ -9,13 +9,14 @@ export const metadata: Metadata = {
     template: '%s | Karonga United FC',
   },
   description:
-    'Official website of Karonga United FC — The Crocodiles of Karonga (Ingwina Sya Mwa Karonga). A Malawi TNM Super League football club based at Karonga Boma. Fixtures, results, news, squad, and more.',
+    'Official website of Karonga United FC — The Crocodiles of Karonga (Ingwina Sya Mwa Karonga). A Malawi FDH Bank Premiership football club based at Karonga Boma. Fixtures, results, news, squad, and more.',
   keywords: [
     'Karonga United FC',
     'The Crocodiles',
     'Karonga football',
-    'Malawi Super League',
-    'TNM Super League',
+    'FDH Bank Premiership',
+    'Malawi football league',
+    'FDH Bank Premiership',
     'Karonga Boma',
     'Ingwina Sya Mwa Karonga',
     'Malawi football',
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
     siteName: 'Karonga United FC',
     title: 'Karonga United FC — The Crocodiles of Karonga',
     description:
-      'Official website of Karonga United FC — The Crocodiles of Karonga. Malawi TNM Super League football club based at Karonga Boma.',
+      'Official website of Karonga United FC — The Crocodiles of Karonga. Malawi FDH Bank Premiership football club based at Karonga Boma.',
     images: [
       {
         url: '/images/logo.avif',
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
     card: 'summary',
     title: 'Karonga United FC — The Crocodiles of Karonga',
     description:
-      'Official website of Karonga United FC — The Crocodiles of Karonga. Malawi TNM Super League football club.',
+      'Official website of Karonga United FC — The Crocodiles of Karonga. Malawi FDH Bank Premiership football club.',
     images: ['/images/logo.avif'],
   },
   icons: {

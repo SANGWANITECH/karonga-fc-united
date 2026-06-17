@@ -115,7 +115,7 @@ export default function Navbar() {
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
               <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                TNM Super League
+                FDH Bank Premiership
               </span>
             </div>
 
@@ -182,7 +182,7 @@ export default function Navbar() {
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                 <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                  TNM Super League
+                  FDH Bank Premiership
                 </span>
               </div>
 

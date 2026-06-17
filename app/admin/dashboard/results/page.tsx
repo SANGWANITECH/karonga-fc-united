@@ -14,8 +14,7 @@ interface Result {
   our_score: number
   their_score: number
 }
-
-const competitions = ['All', 'Super League', 'FDH Bank Cup', 'Airtel Top 8', 'Friendly']
+const competitions = ['All', 'FDH Bank Premiership', 'Castel Cup', 'FDH Bank Cup', 'Airtel Top 8', 'Friendly']
 
 // Work out W / D / L from Karonga's perspective
 function outcome(our: number, their: number) {

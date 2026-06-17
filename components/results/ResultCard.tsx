@@ -2,7 +2,8 @@ import { formatDate } from '@/lib/utils'
 import type { Result } from '@/types'
 
 const compAbbr: Record<string, string> = {
-  'Super League': 'MSL',
+ 'FDH Bank Premiership': 'FDH',
+  'Castel Cup': 'CASTEL',
   'FDH Bank Cup': 'FDH CUP',
   'Airtel Top 8': 'TOP 8',
   'Friendly': 'FRIENDLY',
@@ -64,9 +65,9 @@ export default function ResultCard({ result }: { result: Result }) {
             className="text-xs font-bold uppercase px-2 py-0.5"
             style={{
               fontSize: '9px',
-              background: result.competition === 'Super League'
+              background: result.competition === 'FDH Bank Premiership'
               ? 'rgba(255,255,255,0.08)' : '#0057B8',
-            color: result.competition === 'Super League'
+            color: result.competition === 'FDH Bank Premiership'
               ? 'rgba(255,255,255,0.6)' : '#fff',
             }}
           >

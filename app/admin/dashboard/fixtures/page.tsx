@@ -13,8 +13,7 @@ interface Fixture {
   match_date: string
   match_time: string | null
 }
-
-const competitions = ['All', 'Super League', 'FDH Bank Cup', 'Airtel Top 8', 'Friendly']
+const competitions = ['All', 'FDH Bank Premiership', 'Castel Cup', 'FDH Bank Cup', 'Airtel Top 8', 'Friendly']
 
 export default function FixturesListPage() {
   const [fixtures, setFixtures] = useState<Fixture[]>([])

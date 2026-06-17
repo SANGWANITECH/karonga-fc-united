@@ -55,7 +55,7 @@ export default function Footer() {
             <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(255,255,255,0.5)' }}>
               Representing the strength and spirit of Karonga since 2016.
               The Crocodiles are the pride of the North, fighting for
-              glory in the TNM Super League.
+              glory in the FDH Bank Premiership.
             </p>
 
             {/* Social Links */}
@@ -154,7 +154,7 @@ export default function Footer() {
               <div className="text-xs text-white opacity-40 uppercase tracking-widest mb-1">
                 Current Competition
               </div>
-              <div className="text-sm font-bold text-white uppercase">TNM Super League</div>
+              <div className="text-sm font-bold text-white uppercase">FDH Bank Premiership</div>
               <div className="text-xs text-club-yellow font-bold mt-0.5">2025 / 26 Season</div>
             </div>
           </div>

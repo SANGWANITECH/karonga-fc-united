@@ -65,7 +65,7 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <section className="relative min-h-screen flex flex-col overflow-hidden">
+    <section className="relative min-h-[600px] h-[88vh] sm:h-screen flex flex-col overflow-hidden">
 
       {/* ── Background — crossfading images ── */}
       <div className="absolute inset-0">
@@ -79,32 +79,42 @@ export default function HeroSection() {
               src={src}
               alt="Karonga United FC"
               fill
-              className="object-cover object-top"
+              className="object-cover object-center"
               priority={i === 0}
             />
           </div>
         ))}
 
-        {/* Overlays — sit above the images, below the content */}
+        {/* Overlay 1 — even black wash across the whole image for consistent darkness */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'rgba(10,15,26,0.55)' }}
+        />
+
+        {/* Overlay 2 — left-to-right gradient so text side is darker (readability) */}
         <div
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(105deg, rgba(15,23,42,0.97) 0%, rgba(15,23,42,0.85) 40%, rgba(15,23,42,0.4) 70%, rgba(15,23,42,0.2) 100%)',
+            background:
+              'linear-gradient(100deg, rgba(10,15,26,0.92) 0%, rgba(10,15,26,0.75) 40%, rgba(10,15,26,0.35) 75%, rgba(10,15,26,0.2) 100%)',
           }}
         />
+
+        {/* Overlay 3 — bottom fade into the page */}
         <div
           className="absolute bottom-0 left-0 right-0 h-64"
           style={{ background: 'linear-gradient(to top, #0F172A 0%, transparent 100%)' }}
         />
-        <div className="absolute inset-0 pitch-pattern" style={{ opacity: 0.15 }} />
+
+        <div className="absolute inset-0 pitch-pattern" style={{ opacity: 0.12 }} />
       </div>
 
       {/* ── Yellow top accent ── */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-club-yellow z-10" />
 
-      {/* ── Main Content ── */}
-      <div className="relative z-10 flex-1 flex items-start sm:items-center">
-        <div className="max-w-7xl mx-auto px-6 w-full pt-20 pb-16 sm:pt-32 sm:pb-24">
+      {/* ── Main Content — vertically centered on ALL screens ── */}
+      <div className="relative z-10 flex-1 flex items-center">
+        <div className="max-w-7xl mx-auto px-6 w-full py-16">
           <div
             className={[
               'max-w-3xl transition-all duration-1000',
@@ -114,25 +124,25 @@ export default function HeroSection() {
 
             {/* Main Heading */}
             <h1 className="font-heading uppercase leading-none mb-6 sm:mb-8">
-              <span className="block text-white" style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', opacity: 0.9 }}>
+              <span className="block text-white" style={{ fontSize: 'clamp(2.6rem, 9vw, 6rem)', opacity: 0.9 }}>
                 Karonga
               </span>
               <span
                 className="block text-club-yellow"
-                style={{ fontSize: 'clamp(4.5rem, 18vw, 10rem)', lineHeight: 0.85, textShadow: '0 0 80px rgba(255,199,44,0.3)' }}
+                style={{ fontSize: 'clamp(4rem, 16vw, 10rem)', lineHeight: 0.85, textShadow: '0 0 80px rgba(255,199,44,0.3)' }}
               >
                 United FC
               </span>
               <span
                 className="block text-white mt-2 sm:mt-3"
-                style={{ fontSize: 'clamp(0.65rem, 3.5vw, 2rem)', letterSpacing: '0.35em', opacity: 0.45 }}
+                style={{ fontSize: 'clamp(0.6rem, 3.2vw, 2rem)', letterSpacing: '0.35em', opacity: 0.45 }}
               >
                 INGWINA SHA MWA KARONGA
               </span>
             </h1>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-10 sm:mb-16">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-10 sm:mb-14">
               <Link
                 href="/fixtures"
                 className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-club-yellow text-navy text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors duration-200"

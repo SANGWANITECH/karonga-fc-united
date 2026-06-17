@@ -25,7 +25,7 @@ const benefits = [
   {
     icon: <Star size={20} />,
     title: 'Brand Visibility',
-    text: 'Reach passionate supporters across the Northern Region through our matchdays, digital platforms, and TNM Super League coverage.',
+    text: 'Reach passionate supporters across the Northern Region through our matchdays, digital platforms, and FDH Bank Premiership coverage.',
   },
   {
     icon: <Users size={20} />,

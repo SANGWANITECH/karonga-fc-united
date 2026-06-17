@@ -5,7 +5,7 @@ import Image from 'next/image'
 import FixtureCard from '@/components/fixtures/FixtureCard'
 import { supabase } from '@/lib/supabase'
 
-const competitions = ['All', 'Super League', 'FDH Bank Cup', 'Airtel Top 8', 'Friendly']
+const competitions = ['All', 'FDH Bank Premiership', 'Castel Cup', 'FDH Bank Cup', 'Airtel Top 8', 'Friendly']
 
 interface Fixture {
   id: string
@@ -99,7 +99,7 @@ export default function FixturesPage() {
             </h1>
             <p className="text-sm sm:text-base max-w-lg" style={{ color: 'rgba(255,255,255,0.5)' }}>
               The Crocodiles are ready for battle. Track every upcoming clash in the
-              TNM Super League and national cups.
+              FDH Bank Premiership and national cups.
             </p>
           </div>
         </div>
