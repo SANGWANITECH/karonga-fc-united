@@ -88,19 +88,19 @@ export default function PlayerCard({ player }: Props) {
           {player.name}
         </div>
 
-        {/* Stats row */}
+        {/* Stats row — wraps + shrinks so all stats fit on narrow mobile cards */}
         <div
-          className="flex items-center gap-4 mt-3 pt-3"
+          className="flex flex-wrap items-center gap-x-3 gap-y-2 mt-3 pt-3"
           style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
         >
           {/* Appearances — always show */}
-          <div>
-            <div className="font-heading text-lg text-white leading-none">
+          <div className="min-w-0">
+            <div className="font-heading text-base sm:text-lg text-white leading-none">
               {player.stats.appearances}
             </div>
             <div
-              className="uppercase tracking-widest mt-0.5"
-              style={{ color: 'rgba(255,255,255,0.3)', fontSize: '9px' }}
+              className="uppercase tracking-wider mt-0.5 whitespace-nowrap"
+              style={{ color: 'rgba(255,255,255,0.3)', fontSize: '8px' }}
             >
               Apps
             </div>
@@ -108,13 +108,13 @@ export default function PlayerCard({ player }: Props) {
 
           {/* Goals */}
           {player.stats.goals !== undefined && (
-            <div>
-              <div className="font-heading text-lg text-club-yellow leading-none">
+            <div className="min-w-0">
+              <div className="font-heading text-base sm:text-lg text-club-yellow leading-none">
                 {player.stats.goals}
               </div>
               <div
-                className="uppercase tracking-widest mt-0.5"
-                style={{ color: 'rgba(255,255,255,0.3)', fontSize: '9px' }}
+                className="uppercase tracking-wider mt-0.5 whitespace-nowrap"
+                style={{ color: 'rgba(255,255,255,0.3)', fontSize: '8px' }}
               >
                 Goals
               </div>
@@ -123,45 +123,30 @@ export default function PlayerCard({ player }: Props) {
 
           {/* Assists */}
           {player.stats.assists !== undefined && (
-            <div>
-              <div className="font-heading text-lg text-white leading-none">
+            <div className="min-w-0">
+              <div className="font-heading text-base sm:text-lg text-white leading-none">
                 {player.stats.assists}
               </div>
               <div
-                className="uppercase tracking-widest mt-0.5"
-                style={{ color: 'rgba(255,255,255,0.3)', fontSize: '9px' }}
+                className="uppercase tracking-wider mt-0.5 whitespace-nowrap"
+                style={{ color: 'rgba(255,255,255,0.3)', fontSize: '8px' }}
               >
                 Assists
               </div>
             </div>
           )}
 
-          {/* Saves — for goalkeepers */}
-          {player.stats.saves !== undefined && (
-            <div>
-              <div className="font-heading text-lg text-club-yellow leading-none">
-                {player.stats.saves}
+          {/* Clean Sheets — goalkeepers only */}
+          {player.position === 'Goalkeeper' && player.stats.cleanSheets !== undefined && (
+            <div className="min-w-0">
+              <div className="font-heading text-base sm:text-lg text-club-yellow leading-none">
+                {player.stats.cleanSheets}
               </div>
               <div
-                className="uppercase tracking-widest mt-0.5"
-                style={{ color: 'rgba(255,255,255,0.3)', fontSize: '9px' }}
+                className="uppercase tracking-wider mt-0.5 whitespace-nowrap"
+                style={{ color: 'rgba(255,255,255,0.3)', fontSize: '8px' }}
               >
-                Saves
-              </div>
-            </div>
-          )}
-
-          {/* Tackles — only if no goals stat */}
-          {player.stats.tackles !== undefined && player.stats.goals === undefined && (
-            <div>
-              <div className="font-heading text-lg text-white leading-none">
-                {player.stats.tackles}
-              </div>
-              <div
-                className="uppercase tracking-widest mt-0.5"
-                style={{ color: 'rgba(255,255,255,0.3)', fontSize: '9px' }}
-              >
-                Tackles
+                Clean Sheets
               </div>
             </div>
           )}

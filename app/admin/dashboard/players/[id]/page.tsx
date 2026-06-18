@@ -30,6 +30,7 @@ export default function PlayerEditorPage() {
   const [appearances, setAppearances] = useState('0')
   const [goals, setGoals] = useState('0')
   const [assists, setAssists] = useState('0')
+  const [cleanSheets, setCleanSheets] = useState('0')
   const [imageUrl, setImageUrl] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState('')
@@ -55,6 +56,7 @@ export default function PlayerEditorPage() {
       setAppearances(data.appearances?.toString() ?? '0')
       setGoals(data.goals?.toString() ?? '0')
       setAssists(data.assists?.toString() ?? '0')
+      setCleanSheets(data.clean_sheets?.toString() ?? '0')
       setImageUrl(data.image_url ?? '')
       setLoading(false)
     }
@@ -94,6 +96,7 @@ export default function PlayerEditorPage() {
         appearances: parseInt(appearances) || 0,
         goals: parseInt(goals) || 0,
         assists: parseInt(assists) || 0,
+        clean_sheets: parseInt(cleanSheets) || 0,
         image_url: finalImageUrl,
       }
 
@@ -239,6 +242,18 @@ export default function PlayerEditorPage() {
               className="w-full p-3 text-white outline-none focus:border-club-yellow transition-colors font-heading text-xl" style={inputStyle} />
           </div>
         </div>
+
+        {/* Clean Sheets — goalkeepers only */}
+        {position === 'GK' && (
+          <div className="mt-6 md:w-1/3">
+            <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={labelStyle}>Clean Sheets</label>
+            <input type="number" value={cleanSheets} onChange={(e) => setCleanSheets(e.target.value)}
+              className="w-full p-3 text-white outline-none focus:border-club-yellow transition-colors font-heading text-xl" style={inputStyle} />
+            <p className="text-xs uppercase mt-2" style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px' }}>
+              Shown for goalkeepers only
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Error */}

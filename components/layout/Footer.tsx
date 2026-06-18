@@ -53,7 +53,7 @@ export default function Footer() {
             </div>
 
             <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Representing the strength and spirit of Karonga since 2016.
+              Representing the strength and spirit of Karonga since 2008.
               The Crocodiles are the pride of the North, fighting for
               glory in the FDH Bank Premiership.
             </p>
@@ -164,21 +164,39 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="py-5" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+
+          {/* Left — copyright + staff login */}
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+            <p className="text-xs uppercase tracking-widest text-center" style={{ color: 'rgba(255,255,255,0.25)' }}>
+              © 2026 Karonga United FC · All rights reserved
+            </p>
+            <span className="hidden sm:inline" style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
+            <Link
+              href="/admin"
+              className="text-xs uppercase tracking-widest hover:text-club-yellow transition-colors"
+              style={{ color: 'rgba(255,255,255,0.25)' }}
+            >
+              Staff Login
+            </Link>
+          </div>
+
+          {/* Right — developer credit */}
           <p className="text-xs uppercase tracking-widest text-center" style={{ color: 'rgba(255,255,255,0.25)' }}>
-            © 2026 Karonga United FC · All rights reserved
+            Developed by{' '}
+            <a
+              href="https://ram-techs.online"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold hover:text-club-yellow transition-colors"
+              style={{ color: 'rgba(255,255,255,0.45)' }}
+            >
+              RamTech
+            </a>
           </p>
-          <span className="hidden sm:inline" style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
-          <Link
-            href="/admin"
-            className="text-xs uppercase tracking-widest hover:text-club-yellow transition-colors"
-            style={{ color: 'rgba(255,255,255,0.25)' }}
-          >
-            Staff Login
-          </Link>
+
         </div>
       </div>
-
 
     </footer>
   )

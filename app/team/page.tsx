@@ -37,6 +37,7 @@ interface PlayerShape {
     appearances: number
     goals?: number
     assists?: number
+    cleanSheets?: number
   }
 }
 
@@ -73,6 +74,7 @@ export default function TeamPage() {
             appearances: p.appearances ?? 0,
             goals: p.goals ?? 0,
             assists: p.assists ?? 0,
+            cleanSheets: p.clean_sheets ?? 0,
           },
         }))
         setPlayers(mapped)
