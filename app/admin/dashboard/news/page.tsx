@@ -3,29 +3,34 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Plus, Search, Pencil, Trash2, Newspaper } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, Newspaper, Link2, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 interface NewsRow {
   id: string
   title: string
+  slug: string
   category: string
   image_url: string | null
   publish_date: string
 }
+
+// Your live site address — used to build shareable links
+const SITE_URL = 'https://www.karongaunitedfc.online'
 
 export default function NewsListPage() {
   const [articles, setArticles] = useState<NewsRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   // Load articles from Supabase
   const loadArticles = async () => {
     setLoading(true)
     const { data, error } = await supabase
       .from('news')
-      .select('id, title, category, image_url, publish_date')
+      .select('id, title, slug, category, image_url, publish_date')
       .order('publish_date', { ascending: false })
 
     if (!error && data) setArticles(data)
@@ -35,6 +40,23 @@ export default function NewsListPage() {
   useEffect(() => {
     loadArticles()
   }, [])
+
+  // Copy an article's public link to the clipboard
+  const handleCopyLink = async (slug: string, id: string) => {
+    const url = `${SITE_URL}/news/${slug}`
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      const temp = document.createElement('input')
+      temp.value = url
+      document.body.appendChild(temp)
+      temp.select()
+      document.execCommand('copy')
+      document.body.removeChild(temp)
+    }
+    setCopiedId(id)
+    setTimeout(() => setCopiedId(null), 2000)
+  }
 
   // Delete an article
   const handleDelete = async (id: string, title: string) => {
@@ -73,6 +95,17 @@ export default function NewsListPage() {
         >
           <Plus size={18} /> Add New Article
         </Link>
+      </div>
+
+      {/* Helper note */}
+      <div
+        className="flex items-start gap-3 px-4 py-3 text-sm"
+        style={{ background: 'rgba(0,87,184,0.1)', border: '1px solid rgba(0,87,184,0.25)', color: 'rgba(255,255,255,0.65)' }}
+      >
+        <Link2 size={16} className="text-club-yellow flex-shrink-0 mt-0.5" />
+        <span>
+          Tap the <strong>link icon</strong> next to any article to copy its web address. Paste it on Facebook or WhatsApp and people who tap it will be taken straight to that story.
+        </span>
       </div>
 
       {/* Search */}
@@ -152,6 +185,21 @@ export default function NewsListPage() {
                     {/* Actions */}
                     <td className="p-4">
                       <div className="flex justify-end gap-2">
+                        {/* Copy link */}
+                        <button
+                          onClick={() => handleCopyLink(a.slug, a.id)}
+                          aria-label="Copy article link"
+                          title="Copy link to share"
+                          className="w-9 h-9 flex items-center justify-center transition-all hover:border-club-yellow hover:text-club-yellow cursor-pointer"
+                          style={{
+                            border: copiedId === a.id ? '1px solid #4ade80' : '1px solid rgba(255,255,255,0.1)',
+                            color: copiedId === a.id ? '#4ade80' : 'rgba(255,255,255,0.6)',
+                          }}
+                        >
+                          {copiedId === a.id ? <Check size={16} /> : <Link2 size={16} />}
+                        </button>
+
+                        {/* Edit */}
                         <Link
                           href={`/admin/dashboard/news/${a.id}`}
                           aria-label="Edit"
@@ -160,6 +208,8 @@ export default function NewsListPage() {
                         >
                           <Pencil size={16} />
                         </Link>
+
+                        {/* Delete */}
                         <button
                           onClick={() => handleDelete(a.id, a.title)}
                           disabled={deleting === a.id}
